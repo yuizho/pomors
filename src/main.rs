@@ -1,19 +1,15 @@
 extern crate termion;
 
-use std::io::{stdin, stdout, Write, Stdout};
-use std::sync::mpsc;
+use std::io::{stdout, Write, Stdout};
 use std::sync::mpsc::Receiver;
-use std::thread;
 use std::time::Duration;
-use termion::event::Key;
-use termion::input::TermRead;
 use termion::raw::{IntoRawMode, RawTerminal};
 use termion::{clear, color};
+use exitfailure::ExitFailure;
 
 mod key_handler;
 
-// TODO: もどり値をResultに
-fn main() {
+fn main() -> Result<(), ExitFailure> {
     // start key handler on another thread
     let receiver = key_handler::run();
 
@@ -29,8 +25,8 @@ fn main() {
                     "{}{}",
                     termion::cursor::Goto(1, 1),
                     termion::cursor::Show
-                ).unwrap();
-                return;
+                )?;
+                return Ok(());
             }
             write!(
                 stdout,
@@ -40,8 +36,8 @@ fn main() {
                 clear = clear::All,
                 timer = convert_to_min(duration),
                 desc_cursor = termion::cursor::Goto(2, 2)
-            );
-            stdout.flush().unwrap();
+            )?;
+            stdout.flush()?;
 
             // https://crates.io/crates/spin_sleep
             spin_sleep::sleep(Duration::from_secs(1));
@@ -53,11 +49,11 @@ fn main() {
             color::Fg(color::Green),
             clear::All,
             termion::cursor::Goto(2, 1)
-        );
-        stdout.flush().unwrap();
+        )?;
+        stdout.flush()?;
 
         // handle key input on interval
-        handle_input_on_interval(&mut stdout, &receiver);
+        handle_input_on_interval(&mut stdout, &receiver)?;
 
         // TODO: argsからdurationを受ける
         for duration in (0..10).rev() {
@@ -68,8 +64,8 @@ fn main() {
                     "{}{}",
                     termion::cursor::Goto(1, 1),
                     termion::cursor::Show
-                ).unwrap();
-                return;
+                )?;
+                return Ok(());
             }
             write!(
                 stdout,
@@ -79,8 +75,8 @@ fn main() {
                 clear = clear::All,
                 timer = convert_to_min(duration),
                 desc_cursor = termion::cursor::Goto(2, 2)
-            );
-            stdout.flush().unwrap();
+            )?;
+            stdout.flush()?;
 
             // https://crates.io/crates/spin_sleep
             spin_sleep::sleep(Duration::from_secs(1));
@@ -92,11 +88,11 @@ fn main() {
             color::Fg(color::Red),
             termion::cursor::Goto(2, 1),
             clear::All,
-        );
-        stdout.flush().unwrap();
+        )?;
+        stdout.flush()?;
 
         // handle key input on interval
-        handle_input_on_interval(&mut stdout, &receiver);
+        handle_input_on_interval(&mut stdout, &receiver)?;
     }
 }
 
@@ -114,8 +110,8 @@ fn handle_input_on_timer(receiver: &Receiver<&str>) -> bool {
     }
 }
 
-// TODO: もどり値をResultに
-fn handle_input_on_interval(stdout: &mut RawTerminal<Stdout>, receiver: &Receiver<&str>) {
+fn handle_input_on_interval(stdout: &mut RawTerminal<Stdout>, receiver: &Receiver<&str>)
+    -> Result<(), ExitFailure> {
     loop {
         match receiver.try_recv() {
             Ok(message) => match message {
@@ -126,12 +122,13 @@ fn handle_input_on_interval(stdout: &mut RawTerminal<Stdout>, receiver: &Receive
                         "{}{}",
                         termion::cursor::Goto(1, 1),
                         termion::cursor::Show
-                    ).unwrap();
-                    return;
+                    )?;
+                    break;
                 }
                 _ => (),
             },
             _ => (),
         }
     }
+    Ok(())
 }

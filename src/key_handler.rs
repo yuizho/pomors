@@ -1,4 +1,4 @@
-use std::sync::mpsc::{Sender, Receiver};
+use std::sync::mpsc::{Receiver};
 use std::thread;
 use std::io::stdin;
 use termion::event::Key;
