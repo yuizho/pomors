@@ -8,6 +8,7 @@ use termion::{clear, color};
 use exitfailure::ExitFailure;
 
 mod key_handler;
+mod view;
 
 fn main() -> Result<(), ExitFailure> {
     // start key handler on another thread
@@ -19,13 +20,7 @@ fn main() -> Result<(), ExitFailure> {
         // TODO: argsからdurationを受ける
         for duration in (0..10).rev() {
             if handle_input_on_timer(&receiver) {
-                // rawモードを解除
-                write!(
-                    stdout,
-                    "{}{}",
-                    termion::cursor::Goto(1, 1),
-                    termion::cursor::Show
-                )?;
+                view::release_raw_mode(&mut stdout)?;
                 return Ok(());
             }
             write!(
@@ -53,18 +48,14 @@ fn main() -> Result<(), ExitFailure> {
         stdout.flush()?;
 
         // handle key input on interval
-        handle_input_on_interval(&mut stdout, &receiver)?;
+        if handle_input_on_interval(&mut stdout, &receiver)? {
+            return Ok(());
+        }
 
         // TODO: argsからdurationを受ける
         for duration in (0..10).rev() {
             if handle_input_on_timer(&receiver) {
-                // rawモードを解除
-                write!(
-                    stdout,
-                    "{}{}",
-                    termion::cursor::Goto(1, 1),
-                    termion::cursor::Show
-                )?;
+                view::release_raw_mode(&mut stdout)?;
                 return Ok(());
             }
             write!(
@@ -92,7 +83,9 @@ fn main() -> Result<(), ExitFailure> {
         stdout.flush()?;
 
         // handle key input on interval
-        handle_input_on_interval(&mut stdout, &receiver)?;
+        if handle_input_on_interval(&mut stdout, &receiver)? {
+            return Ok(());
+        }
     }
 }
 
@@ -111,18 +104,17 @@ fn handle_input_on_timer(receiver: &Receiver<&str>) -> bool {
 }
 
 fn handle_input_on_interval(stdout: &mut RawTerminal<Stdout>, receiver: &Receiver<&str>)
-    -> Result<(), ExitFailure> {
+    -> Result<bool, ExitFailure> {
+    let mut terminated = false;
     loop {
         match receiver.try_recv() {
             Ok(message) => match message {
-                key_handler::ENTER => break,
+                key_handler::ENTER => {
+                    break;
+                },
                 key_handler::TERMINATE => {
-                    write!(
-                        stdout,
-                        "{}{}",
-                        termion::cursor::Goto(1, 1),
-                        termion::cursor::Show
-                    )?;
+                    view::release_raw_mode(stdout)?;
+                    terminated = true;
                     break;
                 }
                 _ => (),
@@ -130,5 +122,5 @@ fn handle_input_on_interval(stdout: &mut RawTerminal<Stdout>, receiver: &Receive
             _ => (),
         }
     }
-    Ok(())
+    Ok(terminated)
 }
