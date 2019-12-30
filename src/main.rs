@@ -14,9 +14,9 @@ mod view;
 #[derive(StructOpt)]
 struct Option {
     #[structopt(short = "w", long = "work-sec", default_value = "1500")]
-    work_sec: u32,
+    work_sec: u16,
     #[structopt(short = "b", long = "break-sec", default_value = "300")]
-    break_sec: u32,
+    break_sec: u16,
 }
 
 fn main() -> Result<(), ExitFailure> {
@@ -53,7 +53,7 @@ fn main() -> Result<(), ExitFailure> {
     }
 }
 
-fn start_timer(remaining_sec: u32,
+fn start_timer(remaining_sec: u16,
                receiver: &Receiver<key_handler::KeyAction>,
                stdout: &mut RawTerminal<Stdout>,
                flush_fn: fn(stdout: &mut RawTerminal<Stdout>, timer: &str) -> Result<(), failure::Error>)
@@ -80,7 +80,7 @@ fn start_timer(remaining_sec: u32,
     Ok(quited)
 }
 
-fn convert_to_min(duration: u32) -> String {
+fn convert_to_min(duration: u16) -> String {
     let min = duration / 60;
     let sec = duration % 60;
     format!("{:02}:{:02}", min, sec)
