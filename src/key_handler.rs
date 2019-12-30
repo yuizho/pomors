@@ -6,14 +6,11 @@ use std::thread;
 use termion::event::Key;
 use termion::input::TermRead;
 
-pub const ENTER: &str = "enter";
-pub const SPACE: &str = "space";
-pub const TERMINATE: &str = "terminate";
-
 pub enum KeyAction {
     Quit,
-    Pose,
+    Pause,
     Ok,
+    None,
 }
 
 pub fn run() -> Receiver<KeyAction> {
@@ -26,7 +23,7 @@ pub fn run() -> Receiver<KeyAction> {
                     sender.send(KeyAction::Ok).unwrap();
                 }
                 Key::Char(' ') => {
-                    sender.send(KeyAction::Pose).unwrap();
+                    sender.send(KeyAction::Pause).unwrap();
                 }
                 Key::Char('q') => {
                     sender.send(KeyAction::Quit).unwrap();

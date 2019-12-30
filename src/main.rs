@@ -38,7 +38,7 @@ fn main() -> Result<(), ExitFailure> {
                     view::release_raw_mode(&mut stdout)?;
                     return Ok(());
                 }
-                key_handler::KeyAction::Pose => paused_work_timer = !paused_work_timer,
+                key_handler::KeyAction::Pause => paused_work_timer = !paused_work_timer,
                 _ => ()
             }
             if !paused_work_timer {
@@ -63,7 +63,7 @@ fn main() -> Result<(), ExitFailure> {
                     view::release_raw_mode(&mut stdout)?;
                     return Ok(());
                 }
-                key_handler::KeyAction::Pose => paused_break_timer = !paused_break_timer,
+                key_handler::KeyAction::Pause => paused_break_timer = !paused_break_timer,
                 _ => ()
             }
             if !paused_break_timer {
@@ -90,7 +90,7 @@ fn convert_to_min(duration: u32) -> String {
 fn handle_input_on_timer(receiver: &Receiver<key_handler::KeyAction>) -> key_handler::KeyAction {
     match receiver.try_recv() {
         Ok(key_handler::KeyAction::Quit) => key_handler::KeyAction::Quit,
-        Ok(key_handler::KeyAction::Pose) => key_handler::KeyAction::Pose,
+        Ok(key_handler::KeyAction::Pause) => key_handler::KeyAction::Pause,
         _ => key_handler::KeyAction::None,
     }
 }
