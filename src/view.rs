@@ -1,8 +1,8 @@
-use termion::raw::RawTerminal;
+use std::io::{Stdout, Write};
 
-use std::io::{Write, Stdout};
-use termion::{color, clear};
 use failure::ResultExt;
+use termion::{clear, color};
+use termion::raw::RawTerminal;
 
 pub fn flush_work_timer(stdout: &mut RawTerminal<Stdout>, timer: &str) -> Result<(), failure::Error> {
     write!(

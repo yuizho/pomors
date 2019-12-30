@@ -1,9 +1,10 @@
-use std::sync::mpsc::{Receiver};
-use std::thread;
 use std::io::stdin;
+use std::sync::mpsc;
+use std::sync::mpsc::Receiver;
+use std::thread;
+
 use termion::event::Key;
 use termion::input::TermRead;
-use std::sync::mpsc;
 
 pub const ENTER: &str = "enter";
 pub const TERMINATE: &str = "terminate";

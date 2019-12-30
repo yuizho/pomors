@@ -3,18 +3,19 @@ extern crate termion;
 use std::io::{stdout, Stdout};
 use std::sync::mpsc::Receiver;
 use std::time::Duration;
-use termion::raw::{IntoRawMode, RawTerminal};
+
 use exitfailure::ExitFailure;
 use structopt::StructOpt;
+use termion::raw::{IntoRawMode, RawTerminal};
 
 mod key_handler;
 mod view;
 
 #[derive(StructOpt)]
 struct Option {
-    #[structopt(short = "w", long = "work-sec", default_value="1500")]
+    #[structopt(short = "w", long = "work-sec", default_value = "1500")]
     work_sec: u32,
-    #[structopt(short = "b", long = "break-sec", default_value="300")]
+    #[structopt(short = "b", long = "break-sec", default_value = "300")]
     break_sec: u32,
 }
 
@@ -80,14 +81,14 @@ fn handle_input_on_timer(receiver: &Receiver<&str>) -> bool {
 }
 
 fn handle_input_on_interval(stdout: &mut RawTerminal<Stdout>, receiver: &Receiver<&str>)
-    -> Result<bool, ExitFailure> {
+                            -> Result<bool, ExitFailure> {
     let mut terminated = false;
     loop {
         match receiver.try_recv() {
             Ok(message) => match message {
                 key_handler::ENTER => {
                     break;
-                },
+                }
                 key_handler::TERMINATE => {
                     view::release_raw_mode(stdout)?;
                     terminated = true;
