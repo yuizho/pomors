@@ -1,10 +1,9 @@
 extern crate termion;
 
-use std::io::{stdout, Write, Stdout};
+use std::io::{stdout, Stdout};
 use std::sync::mpsc::Receiver;
 use std::time::Duration;
 use termion::raw::{IntoRawMode, RawTerminal};
-use termion::{clear, color};
 use exitfailure::ExitFailure;
 
 mod key_handler;
@@ -23,29 +22,13 @@ fn main() -> Result<(), ExitFailure> {
                 view::release_raw_mode(&mut stdout)?;
                 return Ok(());
             }
-            write!(
-                stdout,
-                "{timer_cursor}{color}{clear}\u{1F345} {timer}{desc_cursor}[Q]: quit, [Space]: pause/resume",
-                timer_cursor = termion::cursor::Goto(2, 1),
-                color = color::Fg(color::Red),
-                clear = clear::All,
-                timer = convert_to_min(duration),
-                desc_cursor = termion::cursor::Goto(2, 2)
-            )?;
-            stdout.flush()?;
+            view::flush_work_timer(&mut stdout, convert_to_min(duration).as_str())?;
 
             // https://crates.io/crates/spin_sleep
             spin_sleep::sleep(Duration::from_secs(1));
         }
 
-        write!(
-            stdout,
-            "{}{}{}\u{1F389} press [Enter] to take a break",
-            color::Fg(color::Green),
-            clear::All,
-            termion::cursor::Goto(2, 1)
-        )?;
-        stdout.flush()?;
+        view::flush_break_interval(&mut stdout)?;
 
         // handle key input on interval
         if handle_input_on_interval(&mut stdout, &receiver)? {
@@ -58,29 +41,13 @@ fn main() -> Result<(), ExitFailure> {
                 view::release_raw_mode(&mut stdout)?;
                 return Ok(());
             }
-            write!(
-                stdout,
-                "{timer_cursor}{color}{clear}\u{2615} {timer}{desc_cursor}[Q]: quit, [Space]: pause/resume",
-                timer_cursor = termion::cursor::Goto(2, 1),
-                color = color::Fg(color::Green),
-                clear = clear::All,
-                timer = convert_to_min(duration),
-                desc_cursor = termion::cursor::Goto(2, 2)
-            )?;
-            stdout.flush()?;
+            view::flush_break_timer(&mut stdout, convert_to_min(duration).as_str())?;
 
             // https://crates.io/crates/spin_sleep
             spin_sleep::sleep(Duration::from_secs(1));
         }
 
-        write!(
-            stdout,
-            "{}{}{}\u{1F514} press [Enter] to work!!",
-            color::Fg(color::Red),
-            termion::cursor::Goto(2, 1),
-            clear::All,
-        )?;
-        stdout.flush()?;
+        view::flush_work_interval(&mut stdout)?;
 
         // handle key input on interval
         if handle_input_on_interval(&mut stdout, &receiver)? {
