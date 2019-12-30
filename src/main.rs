@@ -20,6 +20,7 @@ struct Option {
 }
 
 fn main() -> Result<(), ExitFailure> {
+    // receive cli arguemnts
     let args = Option::from_args();
 
     // start key handler on another thread
@@ -28,38 +29,34 @@ fn main() -> Result<(), ExitFailure> {
     // start timer
     let mut stdout = stdout().into_raw_mode().unwrap();
     loop {
+        // work timer
         for duration in (0..args.work_sec).rev() {
             if handle_input_on_timer(&receiver) {
                 view::release_raw_mode(&mut stdout)?;
                 return Ok(());
             }
             view::flush_work_timer(&mut stdout, convert_to_min(duration).as_str())?;
-
-            // https://crates.io/crates/spin_sleep
             spin_sleep::sleep(Duration::from_secs(1));
         }
 
+        // break interval
         view::flush_break_interval(&mut stdout)?;
-
-        // handle key input on interval
         if handle_input_on_interval(&mut stdout, &receiver)? {
             return Ok(());
         }
 
+        // break timer
         for duration in (0..args.break_sec).rev() {
             if handle_input_on_timer(&receiver) {
                 view::release_raw_mode(&mut stdout)?;
                 return Ok(());
             }
             view::flush_break_timer(&mut stdout, convert_to_min(duration).as_str())?;
-
-            // https://crates.io/crates/spin_sleep
             spin_sleep::sleep(Duration::from_secs(1));
         }
 
+        // work interval
         view::flush_work_interval(&mut stdout)?;
-
-        // handle key input on interval
         if handle_input_on_interval(&mut stdout, &receiver)? {
             return Ok(());
         }
