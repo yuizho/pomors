@@ -5,19 +5,29 @@ use std::sync::mpsc::Receiver;
 use std::time::Duration;
 use termion::raw::{IntoRawMode, RawTerminal};
 use exitfailure::ExitFailure;
+use structopt::StructOpt;
 
 mod key_handler;
 mod view;
 
+#[derive(StructOpt)]
+struct Option {
+    #[structopt(short = "w", long = "work-sec", default_value="1500")]
+    work_sec: u32,
+    #[structopt(short = "b", long = "break-sec", default_value="300")]
+    break_sec: u32,
+}
+
 fn main() -> Result<(), ExitFailure> {
+    let args = Option::from_args();
+
     // start key handler on another thread
     let receiver = key_handler::run();
 
     // start timer
     let mut stdout = stdout().into_raw_mode().unwrap();
     loop {
-        // TODO: argsからdurationを受ける
-        for duration in (0..10).rev() {
+        for duration in (0..args.work_sec).rev() {
             if handle_input_on_timer(&receiver) {
                 view::release_raw_mode(&mut stdout)?;
                 return Ok(());
@@ -35,8 +45,7 @@ fn main() -> Result<(), ExitFailure> {
             return Ok(());
         }
 
-        // TODO: argsからdurationを受ける
-        for duration in (0..10).rev() {
+        for duration in (0..args.break_sec).rev() {
             if handle_input_on_timer(&receiver) {
                 view::release_raw_mode(&mut stdout)?;
                 return Ok(());
@@ -56,7 +65,7 @@ fn main() -> Result<(), ExitFailure> {
     }
 }
 
-fn convert_to_min(duration: i32) -> String {
+fn convert_to_min(duration: u32) -> String {
     let min = duration / 60;
     let sec = duration % 60;
     format!("{:02}:{:02}", min, sec)
