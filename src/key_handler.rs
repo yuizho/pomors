@@ -7,25 +7,34 @@ use termion::event::Key;
 use termion::input::TermRead;
 
 pub const ENTER: &str = "enter";
+pub const SPACE: &str = "space";
 pub const TERMINATE: &str = "terminate";
 
-// TODO: Enumで返すようにする
-pub fn run() -> Receiver<&'static str> {
-    let (sender, receiver) = mpsc::channel();
+pub enum KeyAction {
+    Quit,
+    Pose,
+    Ok,
+}
+
+pub fn run() -> Receiver<KeyAction> {
+    let (sender, receiver) = mpsc::channel::<KeyAction>();
     thread::spawn(move || {
         let stdin = stdin();
         for c in stdin.keys() {
             match c.unwrap() {
                 Key::Char('\n') => {
-                    sender.send(ENTER).unwrap();
+                    sender.send(KeyAction::Ok).unwrap();
+                }
+                Key::Char(' ') => {
+                    sender.send(KeyAction::Pose).unwrap();
                 }
                 Key::Char('q') => {
-                    sender.send(TERMINATE).unwrap();
+                    sender.send(KeyAction::Quit).unwrap();
                     break;
                 }
                 Key::Ctrl(c) => {
                     if c == 'c' {
-                        sender.send(TERMINATE).unwrap();
+                        sender.send(KeyAction::Quit).unwrap();
                         break;
                     }
                 }

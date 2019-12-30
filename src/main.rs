@@ -70,23 +70,23 @@ fn convert_to_min(duration: u32) -> String {
 }
 
 // TODO: もどり値をResultに
-fn handle_input_on_timer(receiver: &Receiver<&str>) -> bool {
+fn handle_input_on_timer(receiver: &Receiver<key_handler::KeyAction>) -> bool {
     match receiver.try_recv() {
-        Ok(message) => message == key_handler::TERMINATE,
+        Ok(key_handler::KeyAction::Quit) => true,
         _ => false,
     }
 }
 
-fn handle_input_on_interval(stdout: &mut RawTerminal<Stdout>, receiver: &Receiver<&str>)
+fn handle_input_on_interval(stdout: &mut RawTerminal<Stdout>, receiver: &Receiver<key_handler::KeyAction>)
                             -> Result<bool, ExitFailure> {
     let mut terminated = false;
     loop {
         match receiver.try_recv() {
             Ok(message) => match message {
-                key_handler::ENTER => {
+                key_handler::KeyAction::Ok => {
                     break;
                 }
-                key_handler::TERMINATE => {
+                key_handler::KeyAction::Quit => {
                     view::release_raw_mode(stdout)?;
                     terminated = true;
                     break;
