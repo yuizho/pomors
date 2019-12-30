@@ -28,9 +28,10 @@ fn main() -> Result<(), ExitFailure> {
 
     // start timer
     let mut stdout = stdout().into_raw_mode().unwrap();
+    let mut round: u64 = 1;
     loop {
         // work timer
-        if start_timer(args.work_sec, &receiver, &mut stdout, view::flush_work_timer)? {
+        if start_timer(args.work_sec, round, &receiver, &mut stdout, view::flush_work_timer)? {
             return Ok(());
         }
 
@@ -41,7 +42,7 @@ fn main() -> Result<(), ExitFailure> {
         }
 
         // break timer
-        if start_timer(args.break_sec, &receiver, &mut stdout, view::flush_break_timer)? {
+        if start_timer(args.break_sec, round, &receiver, &mut stdout, view::flush_break_timer)? {
             return Ok(());
         }
 
@@ -50,13 +51,16 @@ fn main() -> Result<(), ExitFailure> {
         if handle_input_on_interval(&mut stdout, &receiver)? {
             return Ok(());
         }
+
+        round += 1;
     }
 }
 
 fn start_timer(remaining_sec: u16,
+               current_round: u64,
                receiver: &Receiver<key_handler::KeyAction>,
                stdout: &mut RawTerminal<Stdout>,
-               flush_fn: fn(stdout: &mut RawTerminal<Stdout>, timer: &str) -> Result<(), failure::Error>)
+               flush_fn: fn(s: &mut RawTerminal<Stdout>, t: &str, c: u64) -> Result<(), failure::Error>)
                -> Result<bool, failure::Error> {
     let mut quited = false;
     let mut paused = false;
@@ -72,7 +76,7 @@ fn start_timer(remaining_sec: u16,
             _ => ()
         }
         if !paused {
-            flush_fn(stdout, convert_to_min(remaining_sec).as_str())?;
+            flush_fn(stdout, convert_to_min(remaining_sec).as_str(), current_round)?;
             remaining_sec -= 1;
         }
         spin_sleep::sleep(Duration::from_secs(1));

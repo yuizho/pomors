@@ -4,28 +4,30 @@ use failure::ResultExt;
 use termion::{clear, color};
 use termion::raw::RawTerminal;
 
-pub fn flush_work_timer(stdout: &mut RawTerminal<Stdout>, timer: &str) -> Result<(), failure::Error> {
+pub fn flush_work_timer(stdout: &mut RawTerminal<Stdout>, timer: &str, current_round: u64) -> Result<(), failure::Error> {
     write!(
         stdout,
-        "{timer_cursor}{color}{clear}\u{1F345} {timer}{desc_cursor}[Q]: quit, [Space]: pause/resume",
+        "{timer_cursor}{color}{clear}\u{1F345} {timer} (Round {current_round}){desc_cursor}[Q]: quit, [Space]: pause/resume",
         timer_cursor = termion::cursor::Goto(2, 1),
         color = color::Fg(color::Red),
         clear = clear::All,
         timer = timer,
+        current_round = current_round,
         desc_cursor = termion::cursor::Goto(2, 2)
     ).context("failed to show work timer")?;
     stdout.flush().context("failed to flush work timer")?;
     Ok(())
 }
 
-pub fn flush_break_timer(stdout: &mut RawTerminal<Stdout>, timer: &str) -> Result<(), failure::Error> {
+pub fn flush_break_timer(stdout: &mut RawTerminal<Stdout>, timer: &str, current_round: u64) -> Result<(), failure::Error> {
     write!(
         stdout,
-        "{timer_cursor}{color}{clear}\u{2615} {timer}{desc_cursor}[Q]: quit, [Space]: pause/resume",
+        "{timer_cursor}{color}{clear}\u{2615} {timer} (Round {current_round}){desc_cursor}[Q]: quit, [Space]: pause/resume",
         timer_cursor = termion::cursor::Goto(2, 1),
         color = color::Fg(color::Green),
         clear = clear::All,
         timer = timer,
+        current_round = current_round,
         desc_cursor = termion::cursor::Goto(2, 2)
     ).context("failed to show break timer")?;
     stdout.flush().context("failed to flush break timer")?;
