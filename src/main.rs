@@ -15,8 +15,10 @@ mod view;
 struct Option {
     #[structopt(short = "w", long = "work-sec", default_value = "1500")]
     work_sec: u16,
-    #[structopt(short = "b", long = "break-sec", default_value = "300")]
-    break_sec: u16,
+    #[structopt(short = "s", long = "short-break-sec", default_value = "300")]
+    short_break_sec: u16,
+    #[structopt(short = "l", long = "long-break-sec", default_value = "1200")]
+    long_break_sec: u16,
 }
 
 fn main() -> Result<(), ExitFailure> {
@@ -42,7 +44,8 @@ fn main() -> Result<(), ExitFailure> {
         }
 
         // break timer
-        if start_timer(args.break_sec, round, &receiver, &mut stdout, view::flush_break_timer)? {
+        let break_sec = if round % 4 == 0 { args.long_break_sec } else { args.short_break_sec };
+        if start_timer(break_sec, round, &receiver, &mut stdout, view::flush_break_timer)? {
             return Ok(());
         }
 
