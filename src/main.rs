@@ -30,13 +30,22 @@ fn main() -> Result<(), ExitFailure> {
     let mut stdout = stdout().into_raw_mode().unwrap();
     loop {
         // work timer
-        for duration in (0..args.work_sec).rev() {
-            if handle_input_on_timer(&receiver) {
-                view::release_raw_mode(&mut stdout)?;
-                return Ok(());
+        let mut paused_work_timer = false;
+        let mut work_remaining_sec = args.work_sec;
+        while work_remaining_sec != 0 {
+            match handle_input_on_timer(&receiver) {
+                key_handler::KeyAction::Quit => {
+                    view::release_raw_mode(&mut stdout)?;
+                    return Ok(());
+                }
+                key_handler::KeyAction::Pose => paused_work_timer = !paused_work_timer,
+                _ => ()
             }
-            view::flush_work_timer(&mut stdout, convert_to_min(duration).as_str())?;
-            spin_sleep::sleep(Duration::from_secs(1));
+            if !paused_work_timer {
+                view::flush_work_timer(&mut stdout, convert_to_min(work_remaining_sec).as_str())?;
+                work_remaining_sec -= 1;
+                spin_sleep::sleep(Duration::from_secs(1));
+            }
         }
 
         // break interval
@@ -46,13 +55,22 @@ fn main() -> Result<(), ExitFailure> {
         }
 
         // break timer
-        for duration in (0..args.break_sec).rev() {
-            if handle_input_on_timer(&receiver) {
-                view::release_raw_mode(&mut stdout)?;
-                return Ok(());
+        let mut paused_break_timer = false;
+        let mut break_remaining_sec = args.break_sec;
+        while break_remaining_sec != 0 {
+            match handle_input_on_timer(&receiver) {
+                key_handler::KeyAction::Quit => {
+                    view::release_raw_mode(&mut stdout)?;
+                    return Ok(());
+                }
+                key_handler::KeyAction::Pose => paused_break_timer = !paused_break_timer,
+                _ => ()
             }
-            view::flush_break_timer(&mut stdout, convert_to_min(duration).as_str())?;
-            spin_sleep::sleep(Duration::from_secs(1));
+            if !paused_break_timer {
+                view::flush_break_timer(&mut stdout, convert_to_min(break_remaining_sec).as_str())?;
+                break_remaining_sec -= 1;
+                spin_sleep::sleep(Duration::from_secs(1));
+            }
         }
 
         // work interval
@@ -69,11 +87,11 @@ fn convert_to_min(duration: u32) -> String {
     format!("{:02}:{:02}", min, sec)
 }
 
-// TODO: もどり値をResultに
-fn handle_input_on_timer(receiver: &Receiver<key_handler::KeyAction>) -> bool {
+fn handle_input_on_timer(receiver: &Receiver<key_handler::KeyAction>) -> key_handler::KeyAction {
     match receiver.try_recv() {
-        Ok(key_handler::KeyAction::Quit) => true,
-        _ => false,
+        Ok(key_handler::KeyAction::Quit) => key_handler::KeyAction::Quit,
+        Ok(key_handler::KeyAction::Pose) => key_handler::KeyAction::Pose,
+        _ => key_handler::KeyAction::None,
     }
 }
 
