@@ -30,22 +30,8 @@ fn main() -> Result<(), ExitFailure> {
     let mut stdout = stdout().into_raw_mode().unwrap();
     loop {
         // work timer
-        let mut paused_work_timer = false;
-        let mut work_remaining_sec = args.work_sec;
-        while work_remaining_sec != 0 {
-            match handle_input_on_timer(&receiver) {
-                key_handler::KeyAction::Quit => {
-                    view::release_raw_mode(&mut stdout)?;
-                    return Ok(());
-                }
-                key_handler::KeyAction::Pause => paused_work_timer = !paused_work_timer,
-                _ => ()
-            }
-            if !paused_work_timer {
-                view::flush_work_timer(&mut stdout, convert_to_min(work_remaining_sec).as_str())?;
-                work_remaining_sec -= 1;
-                spin_sleep::sleep(Duration::from_secs(1));
-            }
+        if start_timer(args.work_sec, &receiver, &mut stdout, view::flush_work_timer)? {
+            return Ok(());
         }
 
         // break interval
@@ -55,22 +41,8 @@ fn main() -> Result<(), ExitFailure> {
         }
 
         // break timer
-        let mut paused_break_timer = false;
-        let mut break_remaining_sec = args.break_sec;
-        while break_remaining_sec != 0 {
-            match handle_input_on_timer(&receiver) {
-                key_handler::KeyAction::Quit => {
-                    view::release_raw_mode(&mut stdout)?;
-                    return Ok(());
-                }
-                key_handler::KeyAction::Pause => paused_break_timer = !paused_break_timer,
-                _ => ()
-            }
-            if !paused_break_timer {
-                view::flush_break_timer(&mut stdout, convert_to_min(break_remaining_sec).as_str())?;
-                break_remaining_sec -= 1;
-                spin_sleep::sleep(Duration::from_secs(1));
-            }
+        if start_timer(args.break_sec, &receiver, &mut stdout, view::flush_break_timer)? {
+            return Ok(());
         }
 
         // work interval
@@ -79,6 +51,33 @@ fn main() -> Result<(), ExitFailure> {
             return Ok(());
         }
     }
+}
+
+fn start_timer(remaining_sec: u32,
+               receiver: &Receiver<key_handler::KeyAction>,
+               stdout: &mut RawTerminal<Stdout>,
+               flush_fn: fn(stdout: &mut RawTerminal<Stdout>, timer: &str) -> Result<(), failure::Error>)
+               -> Result<bool, failure::Error> {
+    let mut quited = false;
+    let mut paused = false;
+    let mut remaining_sec = remaining_sec;
+    while remaining_sec != 0 {
+        match handle_input_on_timer(receiver) {
+            key_handler::KeyAction::Quit => {
+                view::release_raw_mode(stdout)?;
+                quited = true;
+                break;
+            }
+            key_handler::KeyAction::Pause => paused = !paused,
+            _ => ()
+        }
+        if !paused {
+            flush_fn(stdout, convert_to_min(remaining_sec).as_str())?;
+            remaining_sec -= 1;
+        }
+        spin_sleep::sleep(Duration::from_secs(1));
+    }
+    Ok(quited)
 }
 
 fn convert_to_min(duration: u32) -> String {
@@ -96,8 +95,8 @@ fn handle_input_on_timer(receiver: &Receiver<key_handler::KeyAction>) -> key_han
 }
 
 fn handle_input_on_interval(stdout: &mut RawTerminal<Stdout>, receiver: &Receiver<key_handler::KeyAction>)
-                            -> Result<bool, ExitFailure> {
-    let mut terminated = false;
+                            -> Result<bool, failure::Error> {
+    let mut quited = false;
     loop {
         match receiver.try_recv() {
             Ok(message) => match message {
@@ -106,13 +105,14 @@ fn handle_input_on_interval(stdout: &mut RawTerminal<Stdout>, receiver: &Receive
                 }
                 key_handler::KeyAction::Quit => {
                     view::release_raw_mode(stdout)?;
-                    terminated = true;
+                    quited = true;
                     break;
                 }
                 _ => (),
             },
             _ => (),
         }
+        spin_sleep::sleep(Duration::from_millis(100));
     }
-    Ok(terminated)
+    Ok(quited)
 }
