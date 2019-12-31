@@ -1,4 +1,7 @@
 # pomors
+[![Actions Status](https://github.com/yuizho/pomors/workflows/build/badge.svg)](https://github.com/yuizho/pomors/actions)
+[![crate-name at crates.io](https://img.shields.io/crates/v/pomors.svg)](https://crates.io/crates/pomors)
+
 A simple CLI pomodoro timer written in Rust 🍅
 
 <img src="pomors.gif" width="600">
