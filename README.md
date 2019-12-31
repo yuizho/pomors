@@ -1,6 +1,7 @@
 # pomors
 A simple CLI pomodoro timer written in Rust 🍅
-![pomors_demo](pomors.gif)
+
+<img src="pomors.gif" width="600">
 
 # Getting Started
 If you haven't installed cargo, follow the procedure below to install it.
