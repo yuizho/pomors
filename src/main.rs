@@ -63,7 +63,7 @@ fn start_timer(remaining_sec: u16,
                current_round: u64,
                receiver: &Receiver<key_handler::KeyAction>,
                stdout: &mut RawTerminal<Stdout>,
-               flush_fn: fn(s: &mut RawTerminal<Stdout>, t: &str, c: u64) -> Result<(), failure::Error>)
+               flush_fn: fn(s: &mut RawTerminal<Stdout>, t: u16, c: u64) -> Result<(), failure::Error>)
                -> Result<bool, failure::Error> {
     let mut quited = false;
     let mut paused = false;
@@ -79,18 +79,12 @@ fn start_timer(remaining_sec: u16,
             _ => ()
         }
         if !paused {
-            flush_fn(stdout, convert_to_min(remaining_sec).as_str(), current_round)?;
+            flush_fn(stdout, remaining_sec, current_round)?;
             remaining_sec -= 1;
         }
         spin_sleep::sleep(Duration::from_secs(1));
     }
     Ok(quited)
-}
-
-fn convert_to_min(duration: u16) -> String {
-    let min = duration / 60;
-    let sec = duration % 60;
-    format!("{:02}:{:02}", min, sec)
 }
 
 fn handle_input_on_timer(receiver: &Receiver<key_handler::KeyAction>) -> key_handler::KeyAction {
@@ -107,9 +101,7 @@ fn handle_input_on_interval(stdout: &mut RawTerminal<Stdout>, receiver: &Receive
     loop {
         match receiver.try_recv() {
             Ok(message) => match message {
-                key_handler::KeyAction::Ok => {
-                    break;
-                }
+                key_handler::KeyAction::Ok => break,
                 key_handler::KeyAction::Quit => {
                     view::release_raw_mode(stdout)?;
                     quited = true;
