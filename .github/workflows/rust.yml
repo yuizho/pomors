@@ -9,6 +9,10 @@ jobs:
 
     steps:
     - uses: actions/checkout@v1
+    - name: Setup Build env
+      run: |
+        sudo apt-get update
+        sudo apt install libdbus-1-dev
     - name: Build
       run: cargo build --verbose
     - name: Run tests
