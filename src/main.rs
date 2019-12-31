@@ -10,6 +10,7 @@ use termion::raw::{IntoRawMode, RawTerminal};
 
 mod key_handler;
 mod view;
+mod notification;
 
 #[derive(StructOpt)]
 struct Option {
@@ -37,6 +38,8 @@ fn main() -> Result<(), ExitFailure> {
             return Ok(());
         }
 
+        notification::send("it's time to take a break \u{2615}")?;
+
         // break interval
         view::flush_break_interval(&mut stdout)?;
         if handle_input_on_interval(&mut stdout, &receiver)? {
@@ -48,6 +51,8 @@ fn main() -> Result<(), ExitFailure> {
         if start_timer(break_sec, round, &receiver, &mut stdout, view::flush_break_timer)? {
             return Ok(());
         }
+
+        notification::send("it's time to work again!! \u{1F4AA}")?;
 
         // work interval
         view::flush_work_interval(&mut stdout)?;
