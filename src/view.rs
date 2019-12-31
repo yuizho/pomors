@@ -1,10 +1,9 @@
-use std::io::{Stdout, Write};
+use std::io::Write;
 
 use failure::ResultExt;
 use termion::{clear, color};
-use termion::raw::RawTerminal;
 
-pub fn flush_work_timer(stdout: &mut RawTerminal<Stdout>, timer: &str, current_round: u64) -> Result<(), failure::Error> {
+pub fn flush_work_timer(stdout: &mut impl Write, timer: &str, current_round: u64) -> Result<(), failure::Error> {
     write!(
         stdout,
         "{timer_cursor}{color}{clear}\u{1F345} {timer} (Round {current_round}){desc_cursor}[Q]: quit, [Space]: pause/resume",
@@ -19,7 +18,7 @@ pub fn flush_work_timer(stdout: &mut RawTerminal<Stdout>, timer: &str, current_r
     Ok(())
 }
 
-pub fn flush_break_timer(stdout: &mut RawTerminal<Stdout>, timer: &str, current_round: u64) -> Result<(), failure::Error> {
+pub fn flush_break_timer(stdout: &mut impl Write, timer: &str, current_round: u64) -> Result<(), failure::Error> {
     write!(
         stdout,
         "{timer_cursor}{color}{clear}\u{2615} {timer} (Round {current_round}){desc_cursor}[Q]: quit, [Space]: pause/resume",
@@ -34,7 +33,7 @@ pub fn flush_break_timer(stdout: &mut RawTerminal<Stdout>, timer: &str, current_
     Ok(())
 }
 
-pub fn flush_break_interval(stdout: &mut RawTerminal<Stdout>) -> Result<(), failure::Error> {
+pub fn flush_break_interval(stdout: &mut impl Write) -> Result<(), failure::Error> {
     write!(
         stdout,
         "{msg_cursor}{color}{clear}\u{1F389} press Enter to take a break{desc_cursor}[Q]: quit, [Enter]: start",
@@ -47,7 +46,7 @@ pub fn flush_break_interval(stdout: &mut RawTerminal<Stdout>) -> Result<(), fail
     Ok(())
 }
 
-pub fn flush_work_interval(stdout: &mut RawTerminal<Stdout>) -> Result<(), failure::Error> {
+pub fn flush_work_interval(stdout: &mut impl Write) -> Result<(), failure::Error> {
     write!(
         stdout,
         "{msg_cursor}{color}{clear}\u{1F514} press Enter to work!!{desc_cursor}[Q]: quit, [Enter]: start",
@@ -60,7 +59,7 @@ pub fn flush_work_interval(stdout: &mut RawTerminal<Stdout>) -> Result<(), failu
     Ok(())
 }
 
-pub fn release_raw_mode(stdout: &mut RawTerminal<Stdout>) -> Result<(), failure::Error> {
+pub fn release_raw_mode(stdout: &mut impl Write) -> Result<(), failure::Error> {
     write!(
         stdout,
         "{}{}",
