@@ -3,6 +3,13 @@ name = "pomors"
 version = "0.1.0"
 authors = ["yuizho <yuizho3@gmail.com>"]
 edition = "2018"
+license = "MIT"
+description = "A simple CLI pomodoro timer."
+readme = "README.md"
+homepage = "https://github.com/yuizho/pomors"
+repository = "https://github.com/yuizho/pomors"
+keywords = ["cli", "pomodoro"]
+categories = ["command-line-utilities"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
