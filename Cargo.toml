@@ -10,6 +10,7 @@ homepage = "https://github.com/yuizho/pomors"
 repository = "https://github.com/yuizho/pomors"
 keywords = ["cli", "pomodoro"]
 categories = ["command-line-utilities"]
+exclude = ["pomors.gif"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
