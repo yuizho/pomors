@@ -1,0 +1,25 @@
+name: build
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: Setup Build env
+      run: |
+        sudo apt-get update
+        sudo apt install libdbus-1-dev
+    - name: Build
+      run: cargo build --verbose
+    - name: Run tests
+      run: cargo test --verbose
+    - name: Release Build
+      run: cargo build --release
+    - uses: actions/upload-artifact@v1
+      with:
+        name: pomors
+        path: target/release/pomors
