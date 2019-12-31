@@ -1,5 +1,5 @@
 # pomors
-The simple CLI pomodoro timer written in Rust 🍅
+A simple CLI pomodoro timer written in Rust 🍅
 
 ## Usage
 ```
