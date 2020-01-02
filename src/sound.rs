@@ -1,4 +1,4 @@
-use std::io::BufReader;
+use std::io::Cursor;
 
 use failure::ResultExt;
 use rodio::Device;
@@ -15,27 +15,26 @@ impl Player {
         }
     }
 
-    pub fn play(&self, sound_file: impl MetaData) -> Result<(), failure::Error> {
-        let file = std::fs::File::open(sound_file.path()).context("no sound file")?;
-        let sink = rodio::play_once(&self.device, BufReader::new(file))
+    pub fn play(&self, sound_file: impl FileData) -> Result<(), failure::Error> {
+        let sink = rodio::play_once(&self.device, Cursor::new(sound_file.get_bytes()))
             .context("filed to play sound")?;
         sink.detach();
         Ok(())
     }
 }
 
-pub trait MetaData {
-    fn path(&self) -> &str;
+pub trait FileData {
+    fn get_bytes(&self) -> Vec<u8>;
 }
 
 pub enum SoundFile {
     BELL,
 }
 
-impl MetaData for SoundFile {
-    fn path(&self) -> &str {
+impl FileData for SoundFile {
+    fn get_bytes(&self) -> Vec<u8> {
         match self {
-            SoundFile::BELL => "res/bell.mp3"
+            SoundFile::BELL => include_bytes!("bell.mp3").to_vec()
         }
     }
 }
