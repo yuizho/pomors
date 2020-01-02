@@ -11,6 +11,7 @@ use termion::raw::{IntoRawMode, RawTerminal};
 mod key_handler;
 mod view;
 mod notification;
+mod sound;
 
 #[derive(StructOpt)]
 struct Option {
@@ -29,6 +30,9 @@ fn main() -> Result<(), ExitFailure> {
     // start key handler on another thread
     let receiver = key_handler::run();
 
+    // set up sound player
+    let sound_player = sound::Player::new();
+
     // start timer
     let mut stdout = stdout().into_raw_mode().unwrap();
     let mut round: u64 = 1;
@@ -39,6 +43,7 @@ fn main() -> Result<(), ExitFailure> {
         }
 
         notification::send("it's time to take a break \u{2615}")?;
+        sound_player.play(sound::SoundFile::BELL)?;
 
         // break interval
         view::flush_break_interval(&mut stdout)?;
@@ -53,6 +58,7 @@ fn main() -> Result<(), ExitFailure> {
         }
 
         notification::send("it's time to work again!! \u{1F4AA}")?;
+        sound_player.play(sound::SoundFile::BELL)?;
 
         // work interval
         view::flush_work_interval(&mut stdout)?;
