@@ -12,7 +12,7 @@ jobs:
     - name: Setup Build env
       run: |
         sudo apt-get update
-        sudo apt install libdbus-1-dev
+        sudo apt install libdbus-1-dev libsdl2-dev
     - name: Build
       run: cargo build --verbose
     - name: Run tests
