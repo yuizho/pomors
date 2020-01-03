@@ -16,8 +16,8 @@ pub enum KeyAction {
 pub fn run() -> Receiver<KeyAction> {
     let (sender, receiver) = mpsc::channel::<KeyAction>();
     thread::spawn(move || {
-        let stdin = stdin();
-        for c in stdin.keys() {
+        let stdin = stdin().keys();
+        for c in stdin {
             match c.unwrap() {
                 Key::Char('\n') => {
                     sender.send(KeyAction::Ok).unwrap();
@@ -25,15 +25,9 @@ pub fn run() -> Receiver<KeyAction> {
                 Key::Char(' ') => {
                     sender.send(KeyAction::Pause).unwrap();
                 }
-                Key::Char('q') => {
+                Key::Char('q') | Key::Ctrl('c') => {
                     sender.send(KeyAction::Quit).unwrap();
                     break;
-                }
-                Key::Ctrl(c) => {
-                    if c == 'c' {
-                        sender.send(KeyAction::Quit).unwrap();
-                        break;
-                    }
                 }
                 _ => (),
             }

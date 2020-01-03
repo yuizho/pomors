@@ -109,20 +109,16 @@ fn handle_input_on_timer(receiver: &Receiver<key_handler::KeyAction>) -> key_han
 fn handle_input_on_interval(stdout: &mut RawTerminal<Stdout>, receiver: &Receiver<key_handler::KeyAction>)
                             -> Result<bool, failure::Error> {
     let mut quited = false;
-    loop {
-        match receiver.try_recv() {
-            Ok(message) => match message {
-                key_handler::KeyAction::Ok => break,
-                key_handler::KeyAction::Quit => {
-                    view::release_raw_mode(stdout)?;
-                    quited = true;
-                    break;
-                }
-                _ => (),
-            },
+    for received in receiver.iter() {
+        match received {
+            key_handler::KeyAction::Ok => break,
+            key_handler::KeyAction::Quit => {
+                view::release_raw_mode(stdout)?;
+                quited = true;
+                break;
+            }
             _ => (),
         }
-        spin_sleep::sleep(Duration::from_millis(100));
     }
     Ok(quited)
 }
