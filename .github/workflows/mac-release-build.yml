@@ -10,10 +10,16 @@ jobs:
 
     steps:
       - uses: actions/checkout@v1
-      - name: Build
-        run: cargo build --verbose --release
-      - name: Run tests
-        run: cargo test --verbose --release
+      - uses: actions-rs/cargo@v1.0.1
+        with:
+          name: Build
+          command: build
+          args: --release
+      - uses: actions-rs/cargo@v1.0.1
+        with:
+          name: Test
+          command: test
+          args: --release
       - name: Create zip
         run: |
           zip --junk-paths target/release/pomors_mac target/release/pomors
