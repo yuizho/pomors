@@ -31,7 +31,7 @@ fn main() -> Result<(), ExitFailure> {
     let receiver = key_handler::run();
 
     // set up sound player
-    let sound_player = sound::Player::new();
+    let sound_player = sound::Player::new(sound::SoundFile::BELL);
 
     // start timer
     let mut stdout = stdout().into_raw_mode().unwrap();
@@ -43,7 +43,7 @@ fn main() -> Result<(), ExitFailure> {
         }
 
         notification::send("it's time to take a break \u{2615}")?;
-        sound_player.play(sound::SoundFile::BELL)?;
+        sound_player.play()?;
 
         // break interval
         view::flush_break_interval(&mut stdout)?;
@@ -58,7 +58,7 @@ fn main() -> Result<(), ExitFailure> {
         }
 
         notification::send("it's time to work again!! \u{1F4AA}")?;
-        sound_player.play(sound::SoundFile::BELL)?;
+        sound_player.play()?;
 
         // work interval
         view::flush_work_interval(&mut stdout)?;

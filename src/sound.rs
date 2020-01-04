@@ -1,22 +1,21 @@
 use std::io::Cursor;
 
 use failure::ResultExt;
-use rodio::Device;
 
 pub struct Player {
-    device: Device,
+    sound_file: SoundFile,
 }
 
 impl Player {
-    pub fn new() -> Player {
+    pub fn new(file_data: SoundFile) -> Player {
         Player {
-            device: rodio::default_output_device()
-                .expect("failed to find a sound device"),
+            sound_file: file_data,
         }
     }
 
-    pub fn play(&self, sound_file: impl FileData) -> Result<(), failure::Error> {
-        let sink = rodio::play_once(&self.device, Cursor::new(sound_file.get_bytes()))
+    pub fn play(&self) -> Result<(), failure::Error> {
+        let device = rodio::default_output_device().expect("failed to find a sound device");
+        let sink = rodio::play_once(&device, Cursor::new(self.sound_file.get_bytes()))
             .context("filed to play sound")?;
         sink.detach();
         Ok(())
