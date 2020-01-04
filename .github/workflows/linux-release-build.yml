@@ -1,0 +1,27 @@
+name: linux-release-build
+
+# TODO: あとでリリースタグ咲く作成時に変更する
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v1
+      - name: Setup Build env
+        run: |
+          sudo apt-get update
+          sudo apt install libdbus-1-dev libsdl2-dev
+      - name: Buildubuntu-latestubuntu-latest
+        run: cargo build --verbose --release
+      - name: Run tests
+        run: cargo test --verbose --release
+      - name: Create zip
+        run: |
+          zip --junk-paths target/release/pomors_x86-64-linux target/release/pomors
+      - uses: actions/upload-artifact@v1
+          with:
+            name: pomors_x86-64-linux.zip
+            path: target/release/pomors_x86-64-linux.zip
