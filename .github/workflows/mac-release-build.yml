@@ -1,0 +1,31 @@
+name: mac-release-build
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+
+    runs-on: macos-latest
+
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+      - uses: actions-rs/cargo@v1.0.1
+        with:
+          name: Build
+          command: build
+          args: --release
+      - uses: actions-rs/cargo@v1.0.1
+        with:
+          name: Test
+          command: test
+          args: --release
+      - uses: actions/upload-artifact@v1
+        with:
+          name: pomors_mac
+          path: target/release/pomors
