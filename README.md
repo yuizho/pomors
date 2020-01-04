@@ -2,7 +2,7 @@
 [![Actions Status](https://github.com/yuizho/pomors/workflows/build/badge.svg)](https://github.com/yuizho/pomors/actions)
 [![crate-name at crates.io](https://img.shields.io/crates/v/pomors.svg)](https://crates.io/crates/pomors)
 
-A simple CLI pomodoro timer written in Rust 🍅
+A simple CLI pomodoro timer for Mac and Linux 🍅
 
 <img src="pomors.gif" width="600">
 
