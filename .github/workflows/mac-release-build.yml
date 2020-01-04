@@ -25,5 +25,5 @@ jobs:
           args: --release
       - uses: actions/upload-artifact@v1
         with:
-          name: pomors_mac.zip
+          name: pomors_mac
           path: target/release/pomors

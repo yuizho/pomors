@@ -20,5 +20,5 @@ jobs:
         run: cargo test --verbose --release
       - uses: actions/upload-artifact@v1
         with:
-          name: pomors_x86-64-linux.zip
+          name: pomors_x86-64-linux
           path: target/release/pomors
