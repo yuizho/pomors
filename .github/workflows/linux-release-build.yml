@@ -22,6 +22,6 @@ jobs:
         run: |
           zip --junk-paths target/release/pomors_x86-64-linux target/release/pomors
       - uses: actions/upload-artifact@v1
-          with:
-            name: pomors_x86-64-linux.zip
-            path: target/release/pomors_x86-64-linux.zip
+        with:
+          name: pomors_x86-64-linux.zip
+          path: target/release/pomors_x86-64-linux.zip
