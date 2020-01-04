@@ -1,7 +1,9 @@
 name: mac-release-build
 
-# TODO: あとでリリースタグ作成時に変更する
-on: [push]
+on:
+  push:
+    branches:
+      - master
 
 jobs:
   build:

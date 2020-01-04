@@ -1,7 +1,9 @@
 name: linux-release-build
 
-# TODO: あとでリリースタグ咲く作成時に変更する
-on: [push]
+on:
+  push:
+    branches:
+      - master
 
 jobs:
   build:
