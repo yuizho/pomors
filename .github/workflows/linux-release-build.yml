@@ -1,13 +1,11 @@
 name: linux-release-build
 
 on:
-  push:
-    branches:
-      - master
+  release:
+    types: [published]
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:

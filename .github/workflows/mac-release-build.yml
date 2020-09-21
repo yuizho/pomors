@@ -1,13 +1,11 @@
 name: mac-release-build
 
 on:
-  push:
-    branches:
-      - master
+  release:
+    types: [published]
 
 jobs:
   build:
-
     runs-on: macos-latest
 
     steps:
