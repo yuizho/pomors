@@ -8,6 +8,8 @@ categories:
       - 'fix'
       - 'bugfix'
       - 'bug'
+exclude-labels:
+  - 'skip-changelog'
 template: |
   ## What’s Changed
 
