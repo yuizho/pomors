@@ -4,21 +4,26 @@ use failure::ResultExt;
 use rodio::Device;
 
 pub struct Player {
-    device: Device,
+    //device: Device,
 }
 
 impl Player {
     pub fn new() -> Player {
         Player {
-            device: rodio::default_output_device().expect("failed to find a sound device"),
+            //device: rodio::default_out,
         }
     }
 
     pub fn play(&self, sound_file: impl FileData) -> Result<(), failure::Error> {
-        let sink = rodio::play_once(&self.device, Cursor::new(sound_file.get_bytes()))
-            .context("filed to play sound")?;
+        let (_stream, stream_handle) =
+            rodio::OutputStream::try_default().expect("failed to find output device");
+        let sink = rodio::Sink::try_new(&stream_handle).expect("failed to create sink");
+        sink.append(
+            rodio::Decoder::new(Cursor::new(sound_file.get_bytes()))
+                .expect("failed to playback sound"),
+        );
         sink.set_volume(0.1);
-        sink.detach();
+        sink.sleep_until_end();
         Ok(())
     }
 }
