@@ -9,9 +9,9 @@ use structopt::StructOpt;
 use termion::raw::{IntoRawMode, RawTerminal};
 
 mod key_handler;
-mod view;
 mod notification;
 mod sound;
+mod view;
 
 #[derive(StructOpt)]
 struct Option {
@@ -30,20 +30,23 @@ fn main() -> Result<(), ExitFailure> {
     // start key handler on another thread
     let receiver = key_handler::run();
 
-    // set up sound player
-    let sound_player = sound::Player::new();
-
     // start timer
     let mut stdout = stdout().into_raw_mode().unwrap();
     let mut round: u64 = 1;
     loop {
         // work timer
-        if start_timer(args.work_sec, round, &receiver, &mut stdout, view::flush_work_timer)? {
+        if start_timer(
+            args.work_sec,
+            round,
+            &receiver,
+            &mut stdout,
+            view::flush_work_timer,
+        )? {
             return Ok(());
         }
 
         notification::send("it's time to take a break \u{2615}")?;
-        sound_player.play(sound::SoundFile::BELL)?;
+        sound::play(sound::SoundFile::BELL)?;
 
         // break interval
         view::flush_break_interval(&mut stdout)?;
@@ -52,13 +55,23 @@ fn main() -> Result<(), ExitFailure> {
         }
 
         // break timer
-        let break_sec = if round % 4 == 0 { args.long_break_sec } else { args.short_break_sec };
-        if start_timer(break_sec, round, &receiver, &mut stdout, view::flush_break_timer)? {
+        let break_sec = if round % 4 == 0 {
+            args.long_break_sec
+        } else {
+            args.short_break_sec
+        };
+        if start_timer(
+            break_sec,
+            round,
+            &receiver,
+            &mut stdout,
+            view::flush_break_timer,
+        )? {
             return Ok(());
         }
 
         notification::send("it's time to work again!! \u{1F4AA}")?;
-        sound_player.play(sound::SoundFile::BELL)?;
+        sound::play(sound::SoundFile::BELL)?;
 
         // work interval
         view::flush_work_interval(&mut stdout)?;
@@ -70,12 +83,13 @@ fn main() -> Result<(), ExitFailure> {
     }
 }
 
-fn start_timer(remaining_sec: u16,
-               current_round: u64,
-               receiver: &Receiver<key_handler::KeyAction>,
-               stdout: &mut RawTerminal<Stdout>,
-               flush_fn: fn(s: &mut RawTerminal<Stdout>, t: u16, c: u64) -> Result<(), failure::Error>)
-               -> Result<bool, failure::Error> {
+fn start_timer(
+    remaining_sec: u16,
+    current_round: u64,
+    receiver: &Receiver<key_handler::KeyAction>,
+    stdout: &mut RawTerminal<Stdout>,
+    flush_fn: fn(s: &mut RawTerminal<Stdout>, t: u16, c: u64) -> Result<(), failure::Error>,
+) -> Result<bool, failure::Error> {
     let mut quited = false;
     let mut paused = false;
     let mut remaining_sec = remaining_sec;
@@ -87,7 +101,7 @@ fn start_timer(remaining_sec: u16,
                 break;
             }
             key_handler::KeyAction::Pause => paused = !paused,
-            _ => ()
+            _ => (),
         }
         if !paused {
             flush_fn(stdout, remaining_sec, current_round)?;
@@ -106,8 +120,10 @@ fn handle_input_on_timer(receiver: &Receiver<key_handler::KeyAction>) -> key_han
     }
 }
 
-fn handle_input_on_interval(stdout: &mut RawTerminal<Stdout>, receiver: &Receiver<key_handler::KeyAction>)
-                            -> Result<bool, failure::Error> {
+fn handle_input_on_interval(
+    stdout: &mut RawTerminal<Stdout>,
+    receiver: &Receiver<key_handler::KeyAction>,
+) -> Result<bool, failure::Error> {
     let mut quited = false;
     for received in receiver.iter() {
         match received {
