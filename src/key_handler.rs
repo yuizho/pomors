@@ -9,6 +9,7 @@ use termion::input::TermRead;
 pub enum KeyAction {
     Quit,
     Pause,
+    Skip,
     Ok,
     None,
 }
@@ -24,6 +25,9 @@ pub fn run() -> Receiver<KeyAction> {
                 }
                 Key::Char(' ') => {
                     sender.send(KeyAction::Pause).unwrap();
+                }
+                Key::Char('s') => {
+                    sender.send(KeyAction::Skip).unwrap();
                 }
                 Key::Char('q') | Key::Ctrl('c') => {
                     sender.send(KeyAction::Quit).unwrap();

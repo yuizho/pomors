@@ -7,7 +7,7 @@ pub fn flush_work_timer(stdout: &mut impl Write, remaining_sec: u16, current_rou
                         -> Result<(), failure::Error> {
     write!(
         stdout,
-        "{timer_cursor}{color}{clear}\u{1F345} {timer} (Round {current_round}){desc_cursor}[Q]: quit, [Space]: pause/resume",
+        "{timer_cursor}{color}{clear}\u{1F345} {timer} (Round {current_round}){desc_cursor}[Q]: quit, [Space]: pause/resume, [S]: skip work",
         timer_cursor = termion::cursor::Goto(2, 1),
         color = color::Fg(color::Red),
         clear = clear::All,
@@ -23,7 +23,7 @@ pub fn flush_break_timer(stdout: &mut impl Write, remaining_sec: u16, current_ro
                          -> Result<(), failure::Error> {
     write!(
         stdout,
-        "{timer_cursor}{color}{clear}\u{2615} {timer} (Round {current_round}){desc_cursor}[Q]: quit, [Space]: pause/resume",
+        "{timer_cursor}{color}{clear}\u{2615} {timer} (Round {current_round}){desc_cursor}[Q]: quit, [Space]: pause/resume, [S]: skip break",
         timer_cursor = termion::cursor::Goto(2, 1),
         color = color::Fg(color::Green),
         clear = clear::All,
@@ -89,7 +89,7 @@ mod tests {
 
         assert!(actual_resp.is_ok());
         assert!(actual_view.contains("00:04 (Round 1)"));
-        assert!(actual_view.contains("[Q]: quit, [Space]: pause/resume"));
+        assert!(actual_view.contains("[Q]: quit, [Space]: pause/resume, [S]: skip work"));
     }
 
     #[test]
@@ -100,7 +100,7 @@ mod tests {
 
         assert!(actual_resp.is_ok());
         assert!(actual_view.contains("10:04 (Round 2)"));
-        assert!(actual_view.contains("[Q]: quit, [Space]: pause/resume"));
+        assert!(actual_view.contains("[Q]: quit, [Space]: pause/resume, [S]: skip break"));
     }
 
     #[test]
