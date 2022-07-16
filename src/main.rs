@@ -101,6 +101,7 @@ fn start_timer(
                 break;
             }
             key_handler::KeyAction::Pause => paused = !paused,
+            key_handler::KeyAction::Skip => break,
             _ => (),
         }
         if !paused {
@@ -116,6 +117,7 @@ fn handle_input_on_timer(receiver: &Receiver<key_handler::KeyAction>) -> key_han
     match receiver.try_recv() {
         Ok(key_handler::KeyAction::Quit) => key_handler::KeyAction::Quit,
         Ok(key_handler::KeyAction::Pause) => key_handler::KeyAction::Pause,
+        Ok(key_handler::KeyAction::Skip) => key_handler::KeyAction::Skip,
         _ => key_handler::KeyAction::None,
     }
 }
